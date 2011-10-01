@@ -9,6 +9,8 @@ import com.avaje.ebean.validation.NotNull;
 @Entity()
 @Table(name = "works")
 public class Work {
+	
+
 	@Id
 	private int work_id;
     @NotNull
@@ -17,6 +19,19 @@ public class Work {
     private String author;
     
     private Double score;
+    @NotNull
+    private String world;
+	@NotNull
+	private int pos_x;
+    @NotNull
+    private int pos_y;
+    @NotNull
+    private int pos_z;
+    @NotNull
+    private double max_reward;
+
+    private Double reward;
+    
     
 	public int getWork_id() {
 		return work_id;
@@ -48,6 +63,14 @@ public class Work {
 
 	public void setScore(Double score) {
 		this.score = score;
+	}
+	
+	public String getWorld() {
+		return world;
+	}
+
+	public void setWorld(String world) {
+		this.world = world;
 	}
 
 	public int getPos_x() {
@@ -90,14 +113,5 @@ public class Work {
 		this.reward = reward;
 	}
 
-	@NotNull
-	private int pos_x;
-    @NotNull
-    private int pos_y;
-    @NotNull
-    private int pos_z;
-    @NotNull
-    private double max_reward;
 
-    private Double reward;
 }

@@ -21,7 +21,6 @@ import org.bukkit.block.Sign;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.Event.Priority;
@@ -157,7 +156,7 @@ public class ScorePlugin extends JavaPlugin implements Listener, EventExecutor, 
 				}
 				
 				player = (Player)sender;
-				Location l = new Location(player.getWorld(), work.getPos_x() + 0.5, work.getPos_y() + 0.5, work.getPos_z() + 0.5);
+				Location l = new Location(this.getServer().getWorld(work.getWorld()), work.getPos_x() + 0.5, work.getPos_y() + 0.5, work.getPos_z() + 0.5);
 				double tp_price = this.configuation.getTp_price();
 				if(tp_price != 0.0) {
 					if(!this.moneyManager.TakeMoney(player.getName(), tp_price)) {
@@ -232,6 +231,7 @@ public class ScorePlugin extends JavaPlugin implements Listener, EventExecutor, 
 					if(signOperation == null) {
 						Work work = this.getDatabase().find(Work.class)
 						.where()
+						.eq("world", sign.getWorld().getName())
 						.eq("pos_x", sign.getX())
 						.eq("pos_y", sign.getY())
 						.eq("pos_z", sign.getZ())

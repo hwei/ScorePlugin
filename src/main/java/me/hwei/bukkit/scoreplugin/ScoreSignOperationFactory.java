@@ -157,6 +157,7 @@ public class ScoreSignOperationFactory {
 		} else {
 			work.setAuthor(authorLine);
 		}
+		work.setWorld(sign.getWorld().getName());
 		work.setPos_x(sign.getX());
 		work.setPos_y(sign.getY());
 		work.setPos_z(sign.getZ());
@@ -191,6 +192,7 @@ public class ScoreSignOperationFactory {
 			Work work = ScoreSignOperationFactory.this.database
 					.find(Work.class)
 					.where()
+					.eq("world", infoFromSign.getWorld())
 					.eq("pos_x", infoFromSign.getPos_x())
 					.eq("pos_y", infoFromSign.getPos_y())
 					.eq("pos_z", infoFromSign.getPos_z())
@@ -282,6 +284,7 @@ public class ScoreSignOperationFactory {
 			Work work = ScoreSignOperationFactory.this.database
 					.find(Work.class)
 					.where()
+					.eq("world", infoFromSign.getWorld())
 					.eq("pos_x", infoFromSign.getPos_x())
 					.eq("pos_y", infoFromSign.getPos_y())
 					.eq("pos_z", infoFromSign.getPos_z())
@@ -289,6 +292,7 @@ public class ScoreSignOperationFactory {
 			if(work == null) {
 				work = infoFromSign;
 				work.setMax_reward(ScoreSignOperationFactory.this.configuation.getAuther_max_reward());
+				work.setWorld(sign.getWorld().getName());
 				work.setPos_x(sign.getX());
 				work.setPos_y(sign.getY());
 				work.setPos_z(sign.getZ());
@@ -330,6 +334,7 @@ public class ScoreSignOperationFactory {
 			Work work = ScoreSignOperationFactory.this.database
 					.find(Work.class)
 					.where()
+					.eq("world", infoFromSign.getWorld())
 					.eq("pos_x", infoFromSign.getPos_x())
 					.eq("pos_y", infoFromSign.getPos_y())
 					.eq("pos_z", infoFromSign.getPos_z())
@@ -415,6 +420,7 @@ public class ScoreSignOperationFactory {
 			Work work = ScoreSignOperationFactory.this.database
 					.find(Work.class)
 					.where()
+					.eq("world", infoFromSign.getWorld())
 					.eq("pos_x", infoFromSign.getPos_x())
 					.eq("pos_y", infoFromSign.getPos_y())
 					.eq("pos_z", infoFromSign.getPos_z())
@@ -508,6 +514,7 @@ public class ScoreSignOperationFactory {
 			Work work = ScoreSignOperationFactory.this.database
 					.find(Work.class)
 					.where()
+					.eq("world", infoFromSign.getWorld())
 					.eq("pos_x", infoFromSign.getPos_x())
 					.eq("pos_y", infoFromSign.getPos_y())
 					.eq("pos_z", infoFromSign.getPos_z())
@@ -568,6 +575,7 @@ public class ScoreSignOperationFactory {
 			Work work = ScoreSignOperationFactory.this.database
 					.find(Work.class)
 					.where()
+					.eq("world", infoFromSign.getWorld())
 					.eq("pos_x", infoFromSign.getPos_x())
 					.eq("pos_y", infoFromSign.getPos_y())
 					.eq("pos_z", infoFromSign.getPos_z())
@@ -616,6 +624,7 @@ public class ScoreSignOperationFactory {
 			Work work = ScoreSignOperationFactory.this.database
 					.find(Work.class)
 					.where()
+					.eq("world", infoFromSign.getWorld())
 					.eq("pos_x", infoFromSign.getPos_x())
 					.eq("pos_y", infoFromSign.getPos_y())
 					.eq("pos_z", infoFromSign.getPos_z())
@@ -666,6 +675,7 @@ public class ScoreSignOperationFactory {
 			Work work = ScoreSignOperationFactory.this.database
 					.find(Work.class)
 					.where()
+					.eq("world", infoFromSign.getWorld())
 					.eq("pos_x", infoFromSign.getPos_x())
 					.eq("pos_y", infoFromSign.getPos_y())
 					.eq("pos_z", infoFromSign.getPos_z())
@@ -781,6 +791,7 @@ public class ScoreSignOperationFactory {
 			Work work = ScoreSignOperationFactory.this.database
 					.find(Work.class)
 					.where()
+					.eq("world", infoFromSign.getWorld())
 					.eq("pos_x", infoFromSign.getPos_x())
 					.eq("pos_y", infoFromSign.getPos_y())
 					.eq("pos_z", infoFromSign.getPos_z())
@@ -830,6 +841,7 @@ public class ScoreSignOperationFactory {
 			Work work = ScoreSignOperationFactory.this.database
 					.find(Work.class)
 					.where()
+					.eq("world", infoFromSign.getWorld())
 					.eq("pos_x", infoFromSign.getPos_x())
 					.eq("pos_y", infoFromSign.getPos_y())
 					.eq("pos_z", infoFromSign.getPos_z())

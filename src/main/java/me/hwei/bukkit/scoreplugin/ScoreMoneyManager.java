@@ -5,16 +5,15 @@ import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.event.server.ServerListener;
 import org.bukkit.plugin.PluginManager;
 
-import com.nijikokun.register.payment.Method;
-import com.nijikokun.register.payment.Method.MethodAccount;
-import com.nijikokun.register.payment.Methods;
+import com.nijikokun.register_1_5.payment.Method;
+import com.nijikokun.register_1_5.payment.Methods;
+import com.nijikokun.register_1_5.payment.Method.MethodAccount;
 
 public class ScoreMoneyManager extends ServerListener  {
 
 	public ScoreMoneyManager(PluginManager pluginManager, ScoreOutput output) {
 		this.pluginManager = pluginManager;
 		this.output = output;
-		this.methods = new Methods();
 	}
 	
 	public String Format(double amount) {
@@ -49,11 +48,12 @@ public class ScoreMoneyManager extends ServerListener  {
 	
     @Override
     public void onPluginDisable(PluginDisableEvent event) {
-        if (this.methods != null && this.methods.hasMethod()) {
-            Boolean check = this.methods.checkDisabled(event.getPlugin());
+        if (Methods.hasMethod()) {
+            Boolean check = Methods.checkDisabled(event.getPlugin());
 
             if(check) {
-                this.method = null;
+            	this.method = null;
+            	Methods.reset();
                 this.output.ToConsole("Payment method was disabled. No longer accepting payments.");
             }
         }
@@ -61,15 +61,14 @@ public class ScoreMoneyManager extends ServerListener  {
 
     @Override
     public void onPluginEnable(PluginEnableEvent event) {
-    	if (!this.methods.hasMethod()) {
-            if(this.methods.setMethod(event.getPlugin())) {
-            	this.method = this.methods.getMethod();
+    	if (!Methods.hasMethod()) {
+            if(Methods.setMethod(this.pluginManager)) {
+            	this.method = Methods.getMethod();
             	this.output.ToConsole("Payment method found (" + this.method.getName() + " version: " + this.method.getVersion() + ").");
             }
         }
     }
     
-    protected Methods methods;
     protected Method method;
     protected PluginManager pluginManager;
     protected ScoreOutput output;

@@ -1,6 +1,6 @@
-package com.nijikokun.register.payment.methods;
+package com.nijikokun.register_1_5.payment.methods;
 
-import com.nijikokun.register.payment.Method;
+import com.nijikokun.register_1_5.payment.Method;
 
 import me.ashtheking.currency.Currency;
 import me.ashtheking.currency.CurrencyList;
@@ -28,6 +28,10 @@ public class MCUR implements Method {
     public String getVersion() {
         return "0.09";
     }
+    
+    public int fractionalDigits() {
+    	return -1;
+    }
 
     public String format(double amount) {
         return amount + " Currency";
@@ -49,6 +53,16 @@ public class MCUR implements Method {
         return false;
     }
 
+    public boolean createAccount(String name) {
+        CurrencyList.setValue((String) CurrencyList.maxCurrency(name)[0], name, 0);
+        return true;
+    }
+
+    public boolean createAccount(String name, Double balance) {
+        CurrencyList.setValue((String) CurrencyList.maxCurrency(name)[0], name, balance);
+        return true;
+    }
+
     public MethodAccount getAccount(String name) {
         return new MCurrencyAccount(name);
     }
@@ -58,7 +72,9 @@ public class MCUR implements Method {
     }
 
     public boolean isCompatible(Plugin plugin) {
-        return plugin.getDescription().getName().equalsIgnoreCase(getName()) && plugin instanceof Currency;
+        return (plugin.getDescription().getName().equalsIgnoreCase("Currency")
+             || plugin.getDescription().getName().equalsIgnoreCase("MultiCurrency"))
+             && plugin instanceof Currency;
     }
 
     public void setPlugin(Plugin plugin) {
