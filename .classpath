@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
+	<classpathentry kind="var" path="LOCAL_JARS/bukkit-0.0.1-SNAPSHOT.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://jd.bukkit.org/apidocs/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="LOCAL_JARS/BOSEconomy7.jar"/>
+	<classpathentry kind="var" path="LOCAL_JARS/Essentials.jar"/>
+	<classpathentry kind="var" path="LOCAL_JARS/iCo4.jar"/>
+	<classpathentry kind="var" path="LOCAL_JARS/iCo5.jar"/>
+	<classpathentry kind="var" path="LOCAL_JARS/iCo6.jar"/>
+	<classpathentry kind="var" path="LOCAL_JARS/MultiCurrency.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
