@@ -1,6 +1,6 @@
 name: Score
 main: me.hwei.bukkit.scoreplugin.ScorePlugin
-version: 0.5
+version: 0.6
 description: Give score of buildings for each other.
 author: HWei
 database: true
@@ -8,24 +8,10 @@ commands:
   score:
     aliases: scr
     description: Score plugin developed by HWei.
-    usage: 
-      !!str "For Users:\n\
-      \u00A7a/scr info \u00A7fView score info.\n\
-      \u00A7a/scr <score> \u00A7fGive a score (range: 0.0 ~ 10.0).\n\
-      \u00A7a/scr list \u00A7fList recent open score signs.\n\
-      \u00A7a/scr tp <num> \u00A7fTeleport to a score sign in list.\n\
-      For Admins:\n\
-      \u00A7a/scr open \u00A7fOpen a score sign.\n\
-      \u00A7a/scr admin \u00A7fView info for admins.\n\
-      \u00A7a/scr set <score> \u00A7fSet a forced score.\n\
-      \u00A7a/scr unset \u00A7fUnset forced score.\n\
-      \u00A7a/scr clear \u00A7fClear all scores from viewers.\n\
-      \u00A7a/scr maxreward <amount> \u00A7fSet max reward for author.\n\
-      \u00A7a/scr close \u00A7fClose a score sign and distribute rewards.\n\
-      \u00A7a/scr reload \u00A7fReload config.yml."
+    usage: Type /scr ? to get help.
 permissions:
   score.*:
-    description: Gives access to all Score commands
+    description: Gives access to all.
     children:
       score.admin: true
   score.admin:
@@ -33,7 +19,47 @@ permissions:
     default: op
     children:
       score.use: true
+      score.open: true
+      score.clear: true
+      score.close: true
+      score.maxreward: true
+      score.moreinfo: true
+      score.break: true
+      score.reload: true
+      score.forcedscore: true
   score.use:
-    description: Allows you to view info and give score.
+    description: Allows you to get info, give score, list score signs and tp to one of them.
     default: true
- 
+    children:
+      score.create: true
+      score.score: true
+      score.info: true
+      score.list: true
+      score.tp: true
+  score:
+    default: true
+    description: View plugin info.
+  score.create:
+    description: Create a score sign.
+  score.open:
+    description: Open a score sign.
+  score.score:
+    description: 'Give a score. (Range: 0.0~10.0)'
+  score.forcedscore:
+    description: 'Set or unset a forced score. (Range: 0.0~10.0)'
+  score.clear:
+    description: Clear all scores given by viewers.
+  score.close:
+    description: Close a score sign and distrubute rewards.
+  score.maxreward:
+    description: Set max reward of a score sign.
+  score.list:
+    description: List recent open score signs.
+  score.tp:
+    description: Teleport to a score sign in list.
+  score.info:
+    description: Get infomation about a score sign.
+  score.moreinfo:
+    description: Get more infomation about a score sign.
+  score.break:
+    description: Break a score sign.

@@ -1,252 +1,161 @@
 package me.hwei.bukkit.scoreplugin;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import javax.persistence.PersistenceException;
 
-import me.hwei.bukkit.scoreplugin.ScorePermissionManager.ScorePermissionType;
+import me.hwei.bukkit.scoreplugin.commands.*;
 import me.hwei.bukkit.scoreplugin.data.Score;
 import me.hwei.bukkit.scoreplugin.data.ScoreAggregate;
+import me.hwei.bukkit.scoreplugin.data.Storage;
 import me.hwei.bukkit.scoreplugin.data.Work;
+import me.hwei.bukkit.scoreplugin.listeners.ScoreBlockListener;
+import me.hwei.bukkit.scoreplugin.listeners.ScoreEntityListener;
+import me.hwei.bukkit.scoreplugin.listeners.ScorePlayerListener;
+import me.hwei.bukkit.util.AbstractCommand;
+import me.hwei.bukkit.util.IOutput;
+import me.hwei.bukkit.util.MoneyManager;
+import me.hwei.bukkit.util.OutputManager;
+import me.hwei.bukkit.util.PermissionsException;
+import me.hwei.bukkit.util.UsageException;
 
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.plugin.EventExecutor;
+import org.bukkit.World;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.block.Block;
-import org.bukkit.block.Sign;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.Event.Priority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
 
 
-
-public class ScorePlugin extends JavaPlugin implements Listener, EventExecutor, CommandExecutor
+public class ScorePlugin extends JavaPlugin
 {	
-	protected ScoreConfiguation configuation = null;
-	protected HashMap<String, IScoreSignOperation> playerSignOperation = new HashMap<String, IScoreSignOperation>();
-	protected ScoreOutput output = null;
-	protected ScoreSignOperationFactory signOperationFactory = null;
-	protected ScorePermissionManager permissionManager = null;
-	protected ScoreMoneyManager moneyManager = null;
-
+	
+	protected IOutput toConsole = null;
+	protected boolean enable = false;
+	protected AbstractCommand[] topCommands = null;
+	
 	@Override
 	public void onDisable() {
-		this.output.ToConsole("Disabled.");
+		if(this.enable) {
+			this.enable = false;
+			this.toConsole.output("Disabled.");
+		}
 	}
 
 	@Override
 	public void onEnable() {
-		this.configuation = new ScoreConfiguation(this.getConfiguration());
-		this.output = new ScoreOutput(this.getServer().getLogger(), this.getDescription().getName(), this.getServer());
-		this.setupDatabase();
-		this.permissionManager = new ScorePermissionManager(this.getDescription().getPermissions());
-		this.moneyManager = new ScoreMoneyManager(this.getServer().getPluginManager(), this.output);
-		this.signOperationFactory = new ScoreSignOperationFactory(output, this.getDatabase(), this.permissionManager, this.configuation, this.moneyManager);
-
-		this.getCommand("score").setExecutor(this);
-		
+		String prefix = "[" + ChatColor.YELLOW + this.getDescription().getName() + ChatColor.WHITE + "] ";
+		IOutput toConsole = new IOutput() {
+			@Override
+			public void output(String message) {
+				getServer().getConsoleSender().sendMessage(message);
+			}
+		};
+		IOutput toAll = new IOutput() {
+			@Override
+			public void output(String message) {
+				getServer().broadcastMessage(message);
+			}
+		};
+		OutputManager.IPlayerGetter playerGetter = new OutputManager.IPlayerGetter() {
+			@Override
+			public Player get(String name) {
+				return getServer().getPlayer(name);
+			}
+		};
 		PluginManager pluginManager = this.getServer().getPluginManager();
-		pluginManager.registerEvent(Event.Type.PLAYER_INTERACT, this, this, Priority.Normal, this);
-		pluginManager.registerEvent(Event.Type.BLOCK_BREAK, this, this, Priority.Normal, this);
-		pluginManager.registerEvent(Event.Type.PLUGIN_ENABLE, moneyManager, Priority.Monitor, this);
-		pluginManager.registerEvent(Event.Type.PLUGIN_DISABLE, moneyManager, Priority.Monitor, this);
-		     
-        this.output.ToConsole("Enabled. Developed by " + this.getDescription().getAuthors().get(0) + ".");
-	}
-	
-	@Override
-	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-		Player player = null;
+		OutputManager.Setup(prefix, toConsole, toAll, playerGetter);
+		this.toConsole = OutputManager.GetInstance().prefix(toConsole);
+		MoneyManager.Setup(pluginManager);
+		ScoreSignUtil.SetUp("[" + this.getDescription().getName() + "]");
+		ScoreConfig.reload(this.getConfiguration());
+		this.setupDatabase();
+		Storage.SetUp(this.getDatabase());
 		
-		if(args.length == 0) {
-			this.output.ToCommandSender(sender, command.getDescription());
-			return true;
-		}
-		if(args.length == 1) {
-			if(args[0].equalsIgnoreCase("reload")) {
-				if(!this.permissionManager.HasPermission(sender, ScorePermissionType.ADMIN)) {
-					this.output.ToCommandSender(sender, "Do not have permissions.");
-					return true;
-				}
-				this.configuation.Load();
-				this.output.ToCommandSender(sender, "Config reloaded.");
-				return true;
-			}
+		try {
+			AbstractCommand[] childCommands = new AbstractCommand[] {
+					new OpenCommand(
+							"open  Open a score sign.",
+							"score.open",
+							null),
+					new ScoreCommand(
+							"<score>  Give a score. (Range: 0.0~10.0)",
+							"score.score",
+							null),
+					new ForcedScoreCommand(
+							"set <score>  Set a forced score. (Range: 0.0~10.0)",
+							"score.forcedscore",
+							null),
+					new UnsetForcedScoreCommand(
+							"unset  Unset a forced score.",
+							"score.forcedscore",
+							null),
+					new ClearCommand(
+							"clear  Clear all scores given by viewers.",
+							"score.clear",
+							null),
+					new CloseCommand(
+							"close  Close a score sign and distrubute rewards",
+							"score.close",
+							null),
+					new MaxRewardCommand(
+							"maxreward <reward>  Set max reward of a score sign.",
+							"score.maxreward",
+							null),
+					new ListCommand(
+							"list [pagesize]  List recent open score signs.",
+							"score.list",
+							null),
+					new TeleportCommand(
+							"tp <num>  Teleport to a score sign in list.",
+							"score.tp",
+							null,
+							new TeleportCommand.IWorldGetter() {
+								@Override
+								public World get(String name) {
+									return getServer().getWorld(name);
+								}
+							}),
+					new ReloadCommand(
+							"reload  Reload configuration.",
+							"score.reload",
+							null,
+							this.getConfiguration())
+			};
 			
-		}
-		
-		if(args.length == 1 || args.length == 2) {
-			if(args[0].equalsIgnoreCase("list")) {
-				if(!this.permissionManager.HasPermission(sender, ScorePermissionType.USE)) {
-					this.output.ToCommandSender(sender, "Do not have permissions.");
-					return true;
-				}
-				int pageSize = 10;
-				if(args.length == 2) {
-					try {
-						pageSize = Integer.parseInt(args[1]);
-						if(pageSize <= 0) {
-							pageSize = 10;
-						}
-					} catch(NumberFormatException e) {
-					}
-				}
-				List<Work> recent_open_list = this.getDatabase()
-						.find(Work.class)
-						.where()
-						.eq("reward", null)
-						.orderBy("work_id desc")
-						.setMaxRows(pageSize)
-						.findList();
-				if(recent_open_list == null) {
-					this.output.ToConsole("null erro");
-					return true;
-				}
-				for(int i=0; i<recent_open_list.size(); ++i) {
-					this.output.ToCommandSender(sender, "" + (i + 1) + ". "
-							+ ChatColor.GREEN + recent_open_list.get(i).getName() + ChatColor.WHITE
-							+ " author: "
-							+ ChatColor.DARK_GREEN + recent_open_list.get(i).getAuthor());
-				}
-				return true;
-			}
-		}
-		
-		if(args.length == 2) {
-			if(args[0].equalsIgnoreCase("tp")) {
-				if(!this.permissionManager.HasPermission(sender, ScorePermissionType.USE)) {
-					this.output.ToCommandSender(sender, "Do not have permissions.");
-					return true;
-				}
-				if(!(sender instanceof Player)) {
-					this.output.ToCommandSender(sender, "Can not teleport you.");
-					return true;
-				}
-				int tpId = -1;
-				try {
-					tpId = Integer.parseInt(args[1]);
-					if(tpId <= 0) {
-						return false;
-					}
-				} catch(NumberFormatException e) {
-					return false;
-				}
-				Work work = this.getDatabase()
-					.find(Work.class)
-					.where()
-					.eq("reward", null)
-					.orderBy("work_id desc")
-					.setFirstRow(tpId - 1)
-					.setMaxRows(1)
-					.findUnique();
-				if(work == null) {
-					this.output.ToCommandSender(sender, "Teleport id " + tpId + " does not exist.");
-					return true;
-				}
-				
-				player = (Player)sender;
-				Location l = new Location(this.getServer().getWorld(work.getWorld()), work.getPos_x() + 0.5, work.getPos_y() + 0.5, work.getPos_z() + 0.5);
-				double tp_price = this.configuation.getTp_price();
-				if(tp_price != 0.0) {
-					if(!this.moneyManager.TakeMoney(player.getName(), tp_price)) {
-						this.output.ToPlayer(player, "You should have at least " + ChatColor.GREEN
-								+ this.moneyManager.Format(this.configuation.getTp_price())
-								+ ChatColor.WHITE + " for teleport." );
-						return true;
-					}
-					player.teleport(l);
-					this.output.ToPlayer(player, "You have paid " + ChatColor.GREEN + this.moneyManager.Format(tp_price) + ChatColor.WHITE
-							+ " for teleporting to " + ChatColor.GREEN + work.getName() + ChatColor.WHITE + " .");
-				}
-				else
-				{
-					player.teleport(l);
-					this.output.ToPlayer(player, "Teleporting to " + ChatColor.GREEN + work.getName() + ChatColor.WHITE + " .");
-				}
-				return true;
-			}
-		}
-		
-		
-		if(sender instanceof Player) {
-			player = (Player)sender;
-		}
-		
-		if(player == null)
-			return false;
-		
-		IScoreSignOperation scoreCommand = this.signOperationFactory.Create(args, player);
-		if(scoreCommand == null) {
-			this.output.ToPlayer(player, "Don't have permissions or wrong command.");
-			return false;
-		}
-		this.playerSignOperation.put(player.getName(), scoreCommand);
-		this.output.ToPlayer(player, scoreCommand.GetHint());
-		return true;
-	}
-
-	@Override
-	public void execute(Listener listener, Event event) {
-		if(event instanceof PlayerInteractEvent) {
-			PlayerInteractEvent e = (PlayerInteractEvent)event;
-			Player player = e.getPlayer();
-			Block block = e.getClickedBlock();
-			if(e.getAction() == Action.LEFT_CLICK_BLOCK && block.getState() instanceof Sign) {
-				Sign sign = (Sign)block.getState();
-				if(this.playerSignOperation.containsKey(player.getName())) {
-					this.playerSignOperation.get(player.getName()).Execute(sign);
-					this.playerSignOperation.remove(player.getName());
-				} else {
-					IScoreSignOperation signOperation = this.signOperationFactory.Create(new String[] {"info"}, player);
-					if(signOperation != null)
-						signOperation.Execute(sign);
-				}
-			}
+			String pluginInfo = String.format(
+					ChatColor.YELLOW.toString() + "%s " + ChatColor.GOLD + "%s" + 
+					ChatColor.WHITE + ". Type /scr ? to get help.",
+					this.getDescription().getName(),
+					this.getDescription().getVersion());
+			MessageCommand topCommand = new MessageCommand(
+					"  Get plugin info.",
+					"score",
+					childCommands, pluginInfo);
+			this.topCommands = new AbstractCommand[] {topCommand};
+		} catch (Exception e) {
+			this.toConsole.output("Internal error!");
+			e.printStackTrace();
 			return;
 		}
-		if(event instanceof BlockBreakEvent) {
-			BlockBreakEvent e = (BlockBreakEvent)event;
-			Player player = e.getPlayer();
-			if(player == null) {
-				return;
-			}
-			if(e.getBlock().getState() instanceof Sign) {
-				Sign sign = (Sign)e.getBlock().getState();
-				if(this.playerSignOperation.containsKey(player.getName())) {
-					this.playerSignOperation.get(player.getName()).Execute(sign);
-					this.playerSignOperation.remove(player.getName());
-				} else {
-					IScoreSignOperation signOperation = this.signOperationFactory.Create(new String[] {"remove"}, player);
-					if(signOperation == null) {
-						Work work = this.getDatabase().find(Work.class)
-						.where()
-						.eq("world", sign.getWorld().getName())
-						.eq("pos_x", sign.getX())
-						.eq("pos_y", sign.getY())
-						.eq("pos_z", sign.getZ())
-						.findUnique();
-						if(work != null)
-							e.setCancelled(true);
-						return;
-					} else {
-						signOperation.Execute(sign);
-						return;
-					}
-				}
-			}
-			return;
-		}
+		
+		ScoreBlockListener blockListener = new ScoreBlockListener();
+		
+		pluginManager.registerEvent(Event.Type.PLAYER_INTERACT, new ScorePlayerListener(), Priority.Normal, this);
+		pluginManager.registerEvent(Event.Type.BLOCK_DAMAGE, blockListener, Priority.Normal, this);
+		pluginManager.registerEvent(Event.Type.BLOCK_BREAK, blockListener, Priority.Normal, this);
+		pluginManager.registerEvent(Event.Type.BLOCK_PHYSICS, blockListener, Priority.Normal, this);
+		pluginManager.registerEvent(Event.Type.SIGN_CHANGE, blockListener, Priority.Normal, this);
+		pluginManager.registerEvent(Event.Type.ENTITY_EXPLODE, new ScoreEntityListener(), Priority.Normal, this);
+		pluginManager.registerEvent(Event.Type.PLUGIN_ENABLE, MoneyManager.GetInstance(), Priority.Monitor, this);
+		pluginManager.registerEvent(Event.Type.PLUGIN_DISABLE, MoneyManager.GetInstance(), Priority.Monitor, this);
+		
+		this.enable = true;
+		this.toConsole.output(this.getDescription().getVersion() + " Enabled. Developed by " + this.getDescription().getAuthors().get(0) + ".");
 	}
 	
 	protected void setupDatabase() {
@@ -254,10 +163,36 @@ public class ScorePlugin extends JavaPlugin implements Listener, EventExecutor, 
 			this.getDatabase().find(Work.class).findRowCount();
 			this.getDatabase().find(Score.class).findRowCount();
 		} catch (PersistenceException ex) {
-			this.output.ToConsole("Installing database for " + this.getDescription().getName() + " due to first time usage");
+			this.toConsole.output("Installing database for " + this.getDescription().getName() + " due to first time usage");
 			this.installDDL();
         }
 	}
+	
+	
+	@Override
+	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+		try {
+			boolean matched = false;
+			for(AbstractCommand topCommand : this.topCommands) {
+				matched = matched || topCommand.execute(sender, args);
+			}
+			if(!matched) {
+				sender.sendMessage("Usage: ");
+				for(AbstractCommand topCommand : this.topCommands) {
+					topCommand.showUsage(sender, command.getName());
+				}
+			}
+		} catch (PermissionsException e) {
+			sender.sendMessage(String.format(ChatColor.RED.toString() + "You do not have permission of %s", e.getPerms()));
+		} catch (UsageException e) {
+			sender.sendMessage("Usage: " + ChatColor.YELLOW + command.getName() + " " + e.getUsage());
+			sender.sendMessage(String.format(ChatColor.RED.toString() + e.getMessage()));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return true;
+	}
+
 	
 	@Override
 	public List<Class<?>> getDatabaseClasses() {
@@ -267,5 +202,6 @@ public class ScorePlugin extends JavaPlugin implements Listener, EventExecutor, 
         list.add(ScoreAggregate.class);
         return list;
 	}
-
+	
+	
 }

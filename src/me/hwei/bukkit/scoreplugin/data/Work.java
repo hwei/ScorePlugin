@@ -12,7 +12,7 @@ public class Work {
 	
 
 	@Id
-	private int work_id;
+	private Integer work_id;
     @NotNull
     private String name;
     @NotNull
@@ -33,11 +33,11 @@ public class Work {
     private Double reward;
     
     
-	public int getWork_id() {
+	public Integer getWork_id() {
 		return work_id;
 	}
 
-	public void setWork_id(int work_id) {
+	public void setWork_id(Integer work_id) {
 		this.work_id = work_id;
 	}
 

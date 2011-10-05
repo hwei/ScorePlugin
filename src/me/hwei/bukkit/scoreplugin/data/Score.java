@@ -9,7 +9,7 @@ import javax.persistence.Table;
 @Table(name = "scores")
 public class Score {
     @Id
-    private int score_id;
+    private Integer score_id;
     @NotNull
     private String viewer;
     @NotNull
@@ -19,11 +19,11 @@ public class Score {
     @NotNull
     private double reward;
 
-	public int getScore_id() {
+	public Integer getScore_id() {
 		return score_id;
 	}
 
-	public void setScore_id(int score_id) {
+	public void setScore_id(Integer score_id) {
 		this.score_id = score_id;
 	}
 

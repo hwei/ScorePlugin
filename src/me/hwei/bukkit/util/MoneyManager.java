@@ -1,4 +1,4 @@
-package me.hwei.bukkit.scoreplugin;
+package me.hwei.bukkit.util;
 
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.event.server.PluginEnableEvent;
@@ -9,20 +9,27 @@ import com.nijikokun.register_1_5.payment.Method;
 import com.nijikokun.register_1_5.payment.Methods;
 import com.nijikokun.register_1_5.payment.Method.MethodAccount;
 
-public class ScoreMoneyManager extends ServerListener  {
+public class MoneyManager extends ServerListener  {
+	protected static MoneyManager instance = null;
+	public static MoneyManager GetInstance() {
+		return instance;
+	}
+	public static void Setup(PluginManager pluginManager) {
+		instance = new MoneyManager(pluginManager);
+	}
 
-	public ScoreMoneyManager(PluginManager pluginManager, ScoreOutput output) {
+	protected MoneyManager(PluginManager pluginManager) {
 		this.pluginManager = pluginManager;
-		this.output = output;
+		this.toConsole = OutputManager.GetInstance().prefix(OutputManager.GetInstance().toConsole());
 	}
 	
-	public String Format(double amount) {
+	public String format(double amount) {
 		if(this.method == null)
 			return Double.toString(amount);
 		return this.method.format(amount);
 	}
 	
-	public boolean TakeMoney(String name, double amount) {
+	public boolean takeMoney(String name, double amount) {
 		if(this.method == null)
 			return false;
 		if(method.hasAccount(name)) {
@@ -35,7 +42,7 @@ public class ScoreMoneyManager extends ServerListener  {
 		return false;
 	}
 	
-	public boolean GiveMoney(String name, double amount) {
+	public boolean giveMoney(String name, double amount) {
 		if(this.method == null)
 			return false;
 		if(method.hasAccount(name)) {
@@ -54,7 +61,7 @@ public class ScoreMoneyManager extends ServerListener  {
             if(check) {
             	this.method = null;
             	Methods.reset();
-                this.output.ToConsole("Payment method was disabled. No longer accepting payments.");
+                this.toConsole.output("Payment method was disabled. No longer accepting payments.");
             }
         }
     }
@@ -64,12 +71,12 @@ public class ScoreMoneyManager extends ServerListener  {
     	if (!Methods.hasMethod()) {
             if(Methods.setMethod(this.pluginManager)) {
             	this.method = Methods.getMethod();
-            	this.output.ToConsole("Payment method found (" + this.method.getName() + " version: " + this.method.getVersion() + ").");
+            	this.toConsole.output("Payment method found (" + this.method.getName() + " version: " + this.method.getVersion() + ").");
             }
         }
     }
     
     protected Method method;
     protected PluginManager pluginManager;
-    protected ScoreOutput output;
+    protected IOutput toConsole;
 }
