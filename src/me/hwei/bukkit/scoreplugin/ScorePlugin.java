@@ -2,6 +2,8 @@ package me.hwei.bukkit.scoreplugin;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import javax.persistence.PersistenceException;
 
@@ -33,10 +35,9 @@ import org.bukkit.event.Event.Priority;
 
 public class ScorePlugin extends JavaPlugin
 {	
-	
 	protected IOutput toConsole = null;
 	protected boolean enable = false;
-	protected AbstractCommand[] topCommands = null;
+	protected Map<String, AbstractCommand> topCommands = null;
 	
 	@Override
 	public void onDisable() {
@@ -44,11 +45,12 @@ public class ScorePlugin extends JavaPlugin
 			this.enable = false;
 			this.toConsole.output("Disabled.");
 		}
+		this.toConsole = null;
+		this.topCommands = null;
 	}
 
 	@Override
 	public void onEnable() {
-		String prefix = "[" + ChatColor.YELLOW + this.getDescription().getName() + ChatColor.WHITE + "] ";
 		IOutput toConsole = new IOutput() {
 			@Override
 			public void output(String message) {
@@ -67,15 +69,81 @@ public class ScorePlugin extends JavaPlugin
 				return getServer().getPlayer(name);
 			}
 		};
-		PluginManager pluginManager = this.getServer().getPluginManager();
-		OutputManager.Setup(prefix, toConsole, toAll, playerGetter);
+		
+		OutputManager.Setup(
+				"[" + ChatColor.YELLOW + this.getDescription().getName() + ChatColor.WHITE + "] ",
+				toConsole, toAll, playerGetter);
 		this.toConsole = OutputManager.GetInstance().prefix(toConsole);
+		PluginManager pluginManager = this.getServer().getPluginManager();
 		MoneyManager.Setup(pluginManager);
 		ScoreSignUtil.SetUp("[" + this.getDescription().getName() + "]");
 		ScoreConfig.reload(this.getConfiguration());
 		this.setupDatabase();
 		Storage.SetUp(this.getDatabase());
 		
+		if(!this.setupCommands()) {
+			this.toConsole.output(this.getDescription().getVersion() + ChatColor.RED + " is just broken. :'(");
+			return;
+		}
+		
+		ScoreBlockListener blockListener = new ScoreBlockListener();
+		
+		pluginManager.registerEvent(Event.Type.PLAYER_INTERACT, new ScorePlayerListener(), Priority.Normal, this);
+		pluginManager.registerEvent(Event.Type.BLOCK_DAMAGE, blockListener, Priority.Normal, this);
+		pluginManager.registerEvent(Event.Type.BLOCK_BREAK, blockListener, Priority.Normal, this);
+		pluginManager.registerEvent(Event.Type.BLOCK_PHYSICS, blockListener, Priority.Normal, this);
+		pluginManager.registerEvent(Event.Type.SIGN_CHANGE, blockListener, Priority.Normal, this);
+		pluginManager.registerEvent(Event.Type.ENTITY_EXPLODE, new ScoreEntityListener(), Priority.Normal, this);
+		pluginManager.registerEvent(Event.Type.PLUGIN_ENABLE, MoneyManager.GetInstance(), Priority.Monitor, this);
+		pluginManager.registerEvent(Event.Type.PLUGIN_DISABLE, MoneyManager.GetInstance(), Priority.Monitor, this);
+		
+		this.enable = true;
+		this.toConsole.output(this.getDescription().getVersion() + " Enabled. Developed by " + this.getDescription().getAuthors().get(0) + ".");
+	}
+	
+	protected void setupDatabase() {
+		try {
+			this.getDatabase().find(Work.class).findRowCount();
+			this.getDatabase().find(Score.class).findRowCount();
+		} catch (PersistenceException ex) {
+			this.toConsole.output("Installing database for " + this.getDescription().getName() + " due to first time usage");
+			this.installDDL();
+        }
+	}
+	
+	
+	@Override
+	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+		AbstractCommand topCommand = this.topCommands.get(command.getName());
+		if(topCommand == null) {
+			return false;
+		}
+		try {
+			if(!topCommand.execute(sender, args)) {
+				topCommand.showUsage(sender, command.getName());
+			}
+		} catch (PermissionsException e) {
+			sender.sendMessage(String.format(ChatColor.RED.toString() + "You do not have permission of %s", e.getPerms()));
+		} catch (UsageException e) {
+			sender.sendMessage("Usage: " + ChatColor.YELLOW + command.getName() + " " + e.getUsage());
+			sender.sendMessage(String.format(ChatColor.RED.toString() + e.getMessage()));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return true;
+	}
+
+	
+	@Override
+	public List<Class<?>> getDatabaseClasses() {
+		List<Class<?>> list = new ArrayList<Class<?>>();
+		list.add(Work.class);
+        list.add(Score.class);
+        list.add(ScoreAggregate.class);
+        return list;
+	}
+	
+	protected boolean setupCommands() {
 		try {
 			AbstractCommand[] childCommands = new AbstractCommand[] {
 					new OpenCommand(
@@ -132,76 +200,17 @@ public class ScorePlugin extends JavaPlugin
 					ChatColor.WHITE + ". Type /scr ? to get help.",
 					this.getDescription().getName(),
 					this.getDescription().getVersion());
-			MessageCommand topCommand = new MessageCommand(
+			MessageCommand scoreCommand = new MessageCommand(
 					"  Get plugin info.",
 					"score",
 					childCommands, pluginInfo);
-			this.topCommands = new AbstractCommand[] {topCommand};
+			this.topCommands = new TreeMap<String, AbstractCommand>();
+			this.topCommands.put("score", scoreCommand);
 		} catch (Exception e) {
-			this.toConsole.output("Internal error!");
+			this.toConsole.output("Can not setup commands!");
 			e.printStackTrace();
-			return;
-		}
-		
-		ScoreBlockListener blockListener = new ScoreBlockListener();
-		
-		pluginManager.registerEvent(Event.Type.PLAYER_INTERACT, new ScorePlayerListener(), Priority.Normal, this);
-		pluginManager.registerEvent(Event.Type.BLOCK_DAMAGE, blockListener, Priority.Normal, this);
-		pluginManager.registerEvent(Event.Type.BLOCK_BREAK, blockListener, Priority.Normal, this);
-		pluginManager.registerEvent(Event.Type.BLOCK_PHYSICS, blockListener, Priority.Normal, this);
-		pluginManager.registerEvent(Event.Type.SIGN_CHANGE, blockListener, Priority.Normal, this);
-		pluginManager.registerEvent(Event.Type.ENTITY_EXPLODE, new ScoreEntityListener(), Priority.Normal, this);
-		pluginManager.registerEvent(Event.Type.PLUGIN_ENABLE, MoneyManager.GetInstance(), Priority.Monitor, this);
-		pluginManager.registerEvent(Event.Type.PLUGIN_DISABLE, MoneyManager.GetInstance(), Priority.Monitor, this);
-		
-		this.enable = true;
-		this.toConsole.output(this.getDescription().getVersion() + " Enabled. Developed by " + this.getDescription().getAuthors().get(0) + ".");
-	}
-	
-	protected void setupDatabase() {
-		try {
-			this.getDatabase().find(Work.class).findRowCount();
-			this.getDatabase().find(Score.class).findRowCount();
-		} catch (PersistenceException ex) {
-			this.toConsole.output("Installing database for " + this.getDescription().getName() + " due to first time usage");
-			this.installDDL();
-        }
-	}
-	
-	
-	@Override
-	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-		try {
-			boolean matched = false;
-			for(AbstractCommand topCommand : this.topCommands) {
-				matched = matched || topCommand.execute(sender, args);
-			}
-			if(!matched) {
-				sender.sendMessage("Usage: ");
-				for(AbstractCommand topCommand : this.topCommands) {
-					topCommand.showUsage(sender, command.getName());
-				}
-			}
-		} catch (PermissionsException e) {
-			sender.sendMessage(String.format(ChatColor.RED.toString() + "You do not have permission of %s", e.getPerms()));
-		} catch (UsageException e) {
-			sender.sendMessage("Usage: " + ChatColor.YELLOW + command.getName() + " " + e.getUsage());
-			sender.sendMessage(String.format(ChatColor.RED.toString() + e.getMessage()));
-		} catch (Exception e) {
-			e.printStackTrace();
+			return false;
 		}
 		return true;
 	}
-
-	
-	@Override
-	public List<Class<?>> getDatabaseClasses() {
-		List<Class<?>> list = new ArrayList<Class<?>>();
-		list.add(Work.class);
-        list.add(Score.class);
-        list.add(ScoreAggregate.class);
-        return list;
-	}
-	
-	
 }

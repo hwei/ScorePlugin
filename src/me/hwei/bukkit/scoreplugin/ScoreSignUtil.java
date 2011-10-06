@@ -52,6 +52,7 @@ public class ScoreSignUtil {
 		if(!event.getLine(0).equalsIgnoreCase(this.signHeader)) {
 			return;
 		}
+		event.setLine(2, "");
 		event.setLine(3, ChatColor.DARK_GRAY.toString() + event.getPlayer().getName());
 	}
 	public double calcAuthorReward(double score, double maxReward) {

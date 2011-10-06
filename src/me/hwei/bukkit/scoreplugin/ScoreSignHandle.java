@@ -59,24 +59,6 @@ public class ScoreSignHandle {
 		return new ScoreSignHandle(event.getPlayer(), sign, work == null ? infoFromSign : work);
 	}
 	
-	public static ScoreSignHandle Create(Player player, Sign sign) {
-		ScoreSignUtil signUtil = ScoreSignUtil.GetInstance();
-		Work infoFromSign = signUtil.read(sign);
-		if(infoFromSign == null) {
-			return null;
-		}
-		Work work = Storage.GetInstance().load(infoFromSign);
-		if(work == null) {
-			infoFromSign.setAuthor(player.getName());
-			signUtil.write(sign, infoFromSign);
-			return new ScoreSignHandle(player, sign, infoFromSign);
-		} else 
-		{
-			signUtil.write(sign, work);
-			return new ScoreSignHandle(player, sign, work);
-		}
-	}
-	
 	public static boolean IsProtected(Sign sign) {
 		Work infoFromSign = ScoreSignUtil.GetInstance().read(sign);
 		if(infoFromSign == null) {
