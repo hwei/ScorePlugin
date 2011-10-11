@@ -7,11 +7,6 @@
 			<attribute name="javadoc_location" value="http://jd.bukkit.org/apidocs/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="var" path="LOCAL_JARS/BOSEconomy7.jar"/>
-	<classpathentry kind="var" path="LOCAL_JARS/Essentials.jar"/>
-	<classpathentry kind="var" path="LOCAL_JARS/iCo4.jar"/>
-	<classpathentry kind="var" path="LOCAL_JARS/iCo5.jar"/>
-	<classpathentry kind="var" path="LOCAL_JARS/iCo6.jar"/>
-	<classpathentry kind="var" path="LOCAL_JARS/MultiCurrency.jar"/>
+	<classpathentry kind="var" path="LOCAL_JARS/Register.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

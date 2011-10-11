@@ -77,7 +77,6 @@ public class ScorePlugin extends JavaPlugin
 				toConsole, toAll, playerGetter);
 		this.toConsole = OutputManager.GetInstance().prefix(toConsole);
 		PluginManager pluginManager = this.getServer().getPluginManager();
-		MoneyManager.Setup(pluginManager);
 		ScoreSignUtil.Setup("[" + this.getDescription().getName() + "]");
 		ScoreConfig.Setup(new IConfigDataSource(){
 			@Override
@@ -107,8 +106,17 @@ public class ScorePlugin extends JavaPlugin
 		pluginManager.registerEvent(Event.Type.BLOCK_PHYSICS, blockListener, Priority.Normal, this);
 		pluginManager.registerEvent(Event.Type.SIGN_CHANGE, blockListener, Priority.Normal, this);
 		pluginManager.registerEvent(Event.Type.ENTITY_EXPLODE, new ScoreEntityListener(), Priority.Normal, this);
-		pluginManager.registerEvent(Event.Type.PLUGIN_ENABLE, MoneyManager.GetInstance(), Priority.Monitor, this);
-		pluginManager.registerEvent(Event.Type.PLUGIN_DISABLE, MoneyManager.GetInstance(), Priority.Monitor, this);
+		
+		// delayed loading Register plugin
+		if (getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
+			@Override
+			public void run() {
+				MoneyManager.Setup(getServer().getPluginManager());
+			}
+		}) == -1) {
+			this.toConsole.output("Couldn't schedule delayed Register plugin loading - money support might not work.");
+			MoneyManager.Setup(getServer().getPluginManager());
+		}
 		
 		this.enable = true;
 		this.toConsole.output(this.getDescription().getVersion() + " Enabled. Developed by " + this.getDescription().getAuthors().get(0) + ".");

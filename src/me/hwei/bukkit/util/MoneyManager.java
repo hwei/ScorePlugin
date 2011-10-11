@@ -1,15 +1,13 @@
 package me.hwei.bukkit.util;
 
-import org.bukkit.event.server.PluginDisableEvent;
-import org.bukkit.event.server.PluginEnableEvent;
-import org.bukkit.event.server.ServerListener;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 
-import com.nijikokun.register_1_5.payment.Method;
-import com.nijikokun.register_1_5.payment.Methods;
-import com.nijikokun.register_1_5.payment.Method.MethodAccount;
+import com.nijikokun.register.payment.Method;
+import com.nijikokun.register.payment.Methods;
+import com.nijikokun.register.payment.Method.MethodAccount;
 
-public class MoneyManager extends ServerListener  {
+public class MoneyManager {
 	protected static MoneyManager instance = null;
 	public static MoneyManager GetInstance() {
 		return instance;
@@ -19,18 +17,30 @@ public class MoneyManager extends ServerListener  {
 	}
 
 	protected MoneyManager(PluginManager pluginManager) {
-		this.pluginManager = pluginManager;
 		this.toConsole = OutputManager.GetInstance().prefix(OutputManager.GetInstance().toConsole());
+		Plugin p = pluginManager.getPlugin("Register");
+		if (p != null && p.isEnabled()) {
+			Methods.setMethod(pluginManager);
+			if (Methods.getMethod() != null) {
+				this.toConsole.output(String.format("Register detected and payment methord: %s %s", Methods.getMethod().getName(), Methods.getMethod().getVersion()));
+			} else {
+				this.toConsole.output("Register detected but no payment methord found. No economy support available.");
+			}
+		} else {
+			this.toConsole.output("Register not detected. No economy support available.");
+		}
+		
 	}
 	
 	public String format(double amount) {
-		if(this.method == null)
+		if(Methods.getMethod() == null)
 			return Double.toString(amount);
-		return this.method.format(amount);
+		return Methods.getMethod().format(amount);
 	}
 	
 	public boolean takeMoney(String name, double amount) {
-		if(this.method == null)
+		Method method = Methods.getMethod();
+		if(method == null)
 			return false;
 		if(method.hasAccount(name)) {
 			MethodAccount balance = method.getAccount(name);
@@ -43,7 +53,8 @@ public class MoneyManager extends ServerListener  {
 	}
 	
 	public boolean giveMoney(String name, double amount) {
-		if(this.method == null)
+		Method method = Methods.getMethod();
+		if(method == null)
 			return false;
 		if(method.hasAccount(name)) {
 			MethodAccount balance = method.getAccount(name);
@@ -53,30 +64,6 @@ public class MoneyManager extends ServerListener  {
 		return false;
 	}
 	
-    @Override
-    public void onPluginDisable(PluginDisableEvent event) {
-        if (Methods.hasMethod()) {
-            Boolean check = Methods.checkDisabled(event.getPlugin());
-
-            if(check) {
-            	this.method = null;
-            	Methods.reset();
-                this.toConsole.output("Payment method was disabled. No longer accepting payments.");
-            }
-        }
-    }
-
-    @Override
-    public void onPluginEnable(PluginEnableEvent event) {
-    	if (!Methods.hasMethod()) {
-            if(Methods.setMethod(this.pluginManager)) {
-            	this.method = Methods.getMethod();
-            	this.toConsole.output("Payment method found (" + this.method.getName() + " version: " + this.method.getVersion() + ").");
-            }
-        }
-    }
-    
-    protected Method method;
-    protected PluginManager pluginManager;
+   
     protected IOutput toConsole;
 }
