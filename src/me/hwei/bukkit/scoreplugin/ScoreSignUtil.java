@@ -85,7 +85,7 @@ public class ScoreSignUtil {
 	public static ScoreSignUtil GetInstance() {
 		return instance;
 	}
-	public static void SetUp(String signHeader) {
+	public static void Setup(String signHeader) {
 		instance = new ScoreSignUtil(signHeader);
 	}
 }

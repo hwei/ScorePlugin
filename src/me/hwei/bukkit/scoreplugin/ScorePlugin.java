@@ -7,6 +7,7 @@ import java.util.TreeMap;
 
 import javax.persistence.PersistenceException;
 
+import me.hwei.bukkit.scoreplugin.ScoreConfig.IConfigDataSource;
 import me.hwei.bukkit.scoreplugin.commands.*;
 import me.hwei.bukkit.scoreplugin.data.Score;
 import me.hwei.bukkit.scoreplugin.data.ScoreAggregate;
@@ -28,6 +29,7 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.Configuration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.Event.Priority;
@@ -76,8 +78,19 @@ public class ScorePlugin extends JavaPlugin
 		this.toConsole = OutputManager.GetInstance().prefix(toConsole);
 		PluginManager pluginManager = this.getServer().getPluginManager();
 		MoneyManager.Setup(pluginManager);
-		ScoreSignUtil.SetUp("[" + this.getDescription().getName() + "]");
-		ScoreConfig.reload(this.getConfiguration());
+		ScoreSignUtil.Setup("[" + this.getDescription().getName() + "]");
+		ScoreConfig.Setup(new IConfigDataSource(){
+			@Override
+			public Configuration getConfig() {
+				return ScorePlugin.this.getConfig();
+			}
+			@Override
+			public void saveConfig() {
+				ScorePlugin.this.saveConfig();
+			}
+		});
+		ScoreConfig.Reload();
+		this.saveConfig();
 		this.setupDatabase();
 		Storage.SetUp(this.getDatabase());
 		
@@ -191,8 +204,7 @@ public class ScorePlugin extends JavaPlugin
 					new ReloadCommand(
 							"reload  Reload configuration.",
 							"score.reload",
-							null,
-							this.getConfiguration())
+							null)
 			};
 			
 			String pluginInfo = String.format(

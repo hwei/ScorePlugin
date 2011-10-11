@@ -1,20 +1,40 @@
 package me.hwei.bukkit.scoreplugin;
 
-import org.bukkit.util.config.Configuration;
+import org.bukkit.configuration.Configuration;
+import org.bukkit.configuration.MemoryConfiguration;
 
 public class ScoreConfig {
 	
-	public static void reload(Configuration configuation) {
-		configuation.load();
-		price = getDouble(configuation, "price", 25.0);
-		viewerMaxReward = getDouble(configuation, "viewer_max_reward", 500.0);
-		autherMaxReward = getDouble(configuation, "auther_max_reward", 5000.0);
-		viewerScoreThreshold = getDouble(configuation, "viewer_score_threshold", 1.0);
-		autherScoreThreshold = getDouble(configuation, "auther_score_threshold", 6.0);
-		tpPrice = getDouble(configuation, "tp_price", 50.0);
-		configuation.save();
+	public static void Setup(IConfigDataSource configDataSource) {
+		ScoreConfig.configDataSource = configDataSource;
 	}
 	
+	public interface IConfigDataSource {
+		public Configuration getConfig();
+		public void saveConfig();
+	}
+	
+	public static void Reload() {
+		MemoryConfiguration memConfig = new MemoryConfiguration();
+		memConfig.set("price", 25D);
+		memConfig.set("tp_price", 25D);
+		memConfig.set("viewer_max_reward", 5000D);
+		memConfig.set("auther_max_reward", 1D);
+		memConfig.set("viewer_score_threshold", 6D);
+		memConfig.set("auther_score_threshold", 50D);
+		Configuration config = configDataSource.getConfig();
+		config.setDefaults(memConfig);
+		price = getDouble(config, "price", 25D);
+		tpPrice = getDouble(config, "tp_price", 25D);
+		viewerMaxReward = getDouble(config, "viewer_max_reward", 500D);
+		autherMaxReward = getDouble(config, "auther_max_reward", 5000D);
+		viewerScoreThreshold = getDouble(config, "viewer_score_threshold", 1D);
+		autherScoreThreshold =getDouble(config, "auther_score_threshold", 6D);
+		
+		configDataSource.saveConfig();
+	}
+	
+	private static IConfigDataSource configDataSource = null;
 	private static double price = 0.0;
 	private static double viewerMaxReward = 0.0;
 	private static double autherMaxReward = 0.0;
@@ -40,10 +60,9 @@ public class ScoreConfig {
 	public static double getTpPrice() {
 		return tpPrice;
 	}
-	
-	private static double getDouble(Configuration configuation, String path, double def) {
-		double result = configuation.getDouble(path, def);
-		configuation.setProperty(path, result);
-		return result;
+	private static double getDouble(Configuration config, String path , double def) {
+		double value = config.getDouble(path, def);
+		config.set(path, value);
+		return value;
 	}
 }
