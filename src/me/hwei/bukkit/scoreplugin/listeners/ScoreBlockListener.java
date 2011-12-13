@@ -4,6 +4,7 @@ import me.hwei.bukkit.scoreplugin.ScoreSignHandle;
 import me.hwei.bukkit.scoreplugin.ScoreSignUtil;
 import me.hwei.bukkit.util.IOutput;
 import me.hwei.bukkit.util.OutputManager;
+import me.hwei.bukkit.util.PermissionManager;
 
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -24,7 +25,7 @@ public class ScoreBlockListener extends BlockListener {
 		if (block.getType() != Material.SIGN_POST && block.getType() != Material.WALL_SIGN) {
 			return;
 		}
-		if(event.getPlayer().hasPermission("score.break"))
+		if(PermissionManager.GetInstance().hasPermission(event.getPlayer(), "score.break"))
 			return;
 		Sign sign = (Sign)block.getState();
 		if(ScoreSignHandle.IsProtected(sign)) {
@@ -43,7 +44,8 @@ public class ScoreBlockListener extends BlockListener {
 		Sign sign = (Sign)block.getState();
 		Player player = event.getPlayer();
 		IOutput toPlayer = OutputManager.GetInstance().toSender(player);
-		boolean removed = ScoreSignHandle.Remove(toPlayer, sign, player.hasPermission("score.break"));
+		boolean removed = ScoreSignHandle.Remove(toPlayer, sign,
+				PermissionManager.GetInstance().hasPermission(player, "score.break"));
 		if(!removed) {
 			event.setCancelled(true);
 		}
@@ -70,7 +72,7 @@ public class ScoreBlockListener extends BlockListener {
 		if (event.isCancelled())
 			return;
 		
-		if(!event.getPlayer().hasPermission("score.create"))
+		if(! PermissionManager.GetInstance().hasPermission(event.getPlayer(), "score.create"))
 			return;
 		ScoreSignUtil.GetInstance().create(event);
 	}

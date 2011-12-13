@@ -15,7 +15,7 @@ public abstract class AbstractCommand {
 	}
 	
 	public void showUsage(CommandSender sender, String rootCommand) {
-		if(sender.hasPermission(this.perm)) {
+		if(PermissionManager.GetInstance().hasPermission(sender, this.perm)) {
 			IOutput toSender = OutputManager.GetInstance().toSender(sender);
 			toSender.output(ChatColor.YELLOW.toString() + rootCommand + ChatColor.WHITE + " " + this.coloredUsage);
 		}
@@ -57,7 +57,7 @@ public abstract class AbstractCommand {
 			return matched;
 		} else {
 			// ready to execute this command, check permission first.
-			if(this.perm != null && !sender.hasPermission(this.perm))
+			if(this.perm != null && ! PermissionManager.GetInstance().hasPermission(sender, this.perm))
 				throw new PermissionsException(this.perm);
 			
 			// get all data from args and execute command.

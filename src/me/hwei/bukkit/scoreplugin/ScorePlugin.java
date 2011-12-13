@@ -20,6 +20,7 @@ import me.hwei.bukkit.util.AbstractCommand;
 import me.hwei.bukkit.util.IOutput;
 import me.hwei.bukkit.util.MoneyManager;
 import me.hwei.bukkit.util.OutputManager;
+import me.hwei.bukkit.util.PermissionManager;
 import me.hwei.bukkit.util.PermissionsException;
 import me.hwei.bukkit.util.UsageException;
 
@@ -76,8 +77,9 @@ public class ScorePlugin extends JavaPlugin
 				"[" + ChatColor.YELLOW + this.getDescription().getName() + ChatColor.WHITE + "] ",
 				toConsole, toAll, playerGetter);
 		this.toConsole = OutputManager.GetInstance().prefix(toConsole);
-		PluginManager pluginManager = this.getServer().getPluginManager();
+		
 		ScoreSignUtil.Setup("[" + this.getDescription().getName() + "]");
+		
 		ScoreConfig.Setup(new IConfigDataSource(){
 			@Override
 			public Configuration getConfig() {
@@ -90,6 +92,7 @@ public class ScorePlugin extends JavaPlugin
 		});
 		ScoreConfig.Reload();
 		this.saveConfig();
+		
 		this.setupDatabase();
 		Storage.SetUp(this.getDatabase());
 		
@@ -99,7 +102,7 @@ public class ScorePlugin extends JavaPlugin
 		}
 		
 		ScoreBlockListener blockListener = new ScoreBlockListener();
-		
+		PluginManager pluginManager = this.getServer().getPluginManager();
 		pluginManager.registerEvent(Event.Type.PLAYER_INTERACT, new ScorePlayerListener(), Priority.Normal, this);
 		pluginManager.registerEvent(Event.Type.BLOCK_DAMAGE, blockListener, Priority.Normal, this);
 		pluginManager.registerEvent(Event.Type.BLOCK_BREAK, blockListener, Priority.Normal, this);
@@ -107,16 +110,8 @@ public class ScorePlugin extends JavaPlugin
 		pluginManager.registerEvent(Event.Type.SIGN_CHANGE, blockListener, Priority.Normal, this);
 		pluginManager.registerEvent(Event.Type.ENTITY_EXPLODE, new ScoreEntityListener(), Priority.Normal, this);
 		
-		// delayed loading Register plugin
-		if (getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
-			@Override
-			public void run() {
-				MoneyManager.Setup(getServer().getPluginManager());
-			}
-		}) == -1) {
-			this.toConsole.output("Couldn't schedule delayed Register plugin loading - money support might not work.");
-			MoneyManager.Setup(getServer().getPluginManager());
-		}
+		MoneyManager.Setup(getServer().getServicesManager());
+		PermissionManager.Setup(getServer().getServicesManager());
 		
 		this.enable = true;
 		this.toConsole.output(this.getDescription().getVersion() + " Enabled. Developed by " + this.getDescription().getAuthors().get(0) + ".");

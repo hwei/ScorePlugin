@@ -1,9 +1,10 @@
 name: Score
 main: me.hwei.bukkit.scoreplugin.ScorePlugin
-version: 0.6.1
+version: 0.6.2
 description: Give score of buildings for each other.
 author: HWei
 database: true
+depend: [Vault]
 commands:
   score:
     aliases: scr
