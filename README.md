@@ -18,11 +18,11 @@ Requirements
 Required:
 
 * Minecraft server that runs CraftBukkit
-* An economy plugin supported by Register, for example iConomy
+* Any economy plugin supported by Vault, for example iConomy
 
 Optional:
 
-* A permissions plugin supporting SuperPerm, for example PermissionBukkit or PermissionEx
+* Any permissions plugin supporting Vault, for example PermissionBukkit or PermissionEx
 
 
 Usage
