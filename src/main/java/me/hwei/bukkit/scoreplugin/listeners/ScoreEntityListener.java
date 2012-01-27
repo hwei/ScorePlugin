@@ -5,11 +5,12 @@ import me.hwei.bukkit.scoreplugin.ScoreSignHandle;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityExplodeEvent;
-import org.bukkit.event.entity.EntityListener;
 
-public class ScoreEntityListener extends EntityListener {
-	@Override
+public class ScoreEntityListener implements Listener {
+	@EventHandler
 	public void onEntityExplode(EntityExplodeEvent event) {
 		if (event.isCancelled())
 			return;

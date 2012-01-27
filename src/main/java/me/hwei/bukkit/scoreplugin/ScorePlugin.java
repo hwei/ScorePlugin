@@ -32,8 +32,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.bukkit.event.Event.Priority;
 
 
 public class ScorePlugin extends JavaPlugin
@@ -101,14 +99,10 @@ public class ScorePlugin extends JavaPlugin
 			return;
 		}
 		
-		ScoreBlockListener blockListener = new ScoreBlockListener();
 		PluginManager pluginManager = this.getServer().getPluginManager();
-		pluginManager.registerEvent(Event.Type.PLAYER_INTERACT, new ScorePlayerListener(), Priority.Normal, this);
-		pluginManager.registerEvent(Event.Type.BLOCK_DAMAGE, blockListener, Priority.Normal, this);
-		pluginManager.registerEvent(Event.Type.BLOCK_BREAK, blockListener, Priority.Normal, this);
-		pluginManager.registerEvent(Event.Type.BLOCK_PHYSICS, blockListener, Priority.Normal, this);
-		pluginManager.registerEvent(Event.Type.SIGN_CHANGE, blockListener, Priority.Normal, this);
-		pluginManager.registerEvent(Event.Type.ENTITY_EXPLODE, new ScoreEntityListener(), Priority.Normal, this);
+		pluginManager.registerEvents(new ScorePlayerListener(), this);
+		pluginManager.registerEvents(new ScoreBlockListener(), this);
+		pluginManager.registerEvents(new ScoreEntityListener(), this);
 		
 		MoneyManager.Setup(getServer().getServicesManager());
 		PermissionManager.Setup(getServer().getServicesManager());

@@ -10,14 +10,15 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDamageEvent;
-import org.bukkit.event.block.BlockListener;
 import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.block.SignChangeEvent;
 
-public class ScoreBlockListener extends BlockListener {
-	@Override
+public class ScoreBlockListener implements Listener {
+	@EventHandler
 	public void onBlockDamage(BlockDamageEvent event) {
 		if (event.isCancelled())
 			return;
@@ -33,7 +34,7 @@ public class ScoreBlockListener extends BlockListener {
 		}
 	}
 	
-	@Override
+	@EventHandler
 	public void onBlockBreak(BlockBreakEvent event) {
 		if (event.isCancelled())
 			return;
@@ -51,7 +52,7 @@ public class ScoreBlockListener extends BlockListener {
 		}
 	}
 	
-	@Override
+	@EventHandler
 	public void onBlockPhysics(BlockPhysicsEvent event) {
 		if (event.isCancelled())
 			return;
@@ -67,7 +68,7 @@ public class ScoreBlockListener extends BlockListener {
 		}
 	}
 	
-	@Override
+	@EventHandler
 	public void onSignChange(SignChangeEvent event) {
 		if (event.isCancelled())
 			return;
