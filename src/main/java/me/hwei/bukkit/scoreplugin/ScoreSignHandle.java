@@ -204,6 +204,10 @@ public class ScoreSignHandle {
 		if(!this.requireOpenScore(toPlayer)) {
 			return;
 		}
+		if(this.work.getAuthor() == player.getName()) {
+			toPlayer.output("Sorry, you could not give score to yourself.");
+			return;
+		}
 		Storage storage = Storage.GetInstance();
 		Score scoreItem = storage.load(this.work.getWork_id(), this.player.getName());
 		if(scoreItem == null) {
