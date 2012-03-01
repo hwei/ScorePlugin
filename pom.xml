@@ -2,7 +2,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>me.hwei</groupId>
-	<version>0.6.4</version>
+	<version>0.6.5</version>
 	<artifactId>score</artifactId>
 	<packaging>jar</packaging>
 	<name>Score</name>
@@ -59,7 +59,7 @@
 		<dependency>
 			<groupId>org.bukkit</groupId>
 			<artifactId>bukkit</artifactId>
-			<version>1.1-R4</version>
+			<version>1.1-R6</version>
 		</dependency>
 		<dependency>
 			<groupId>net.milkbowl</groupId>
