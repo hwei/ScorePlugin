@@ -1,0 +1,34 @@
+no_sign: No score sign in sight.
+removed: Removed score sign.
+not_open: This score sign has not been opened yet.
+is_open: This score sign is open. &e%d&f players have given it a score.
+advanced_info: AVG &e%.2f&f, MIN &e%.2f&f, MAX &e%.2f&f, SUM &e%.2f&f, FORCED SCORE &e%s&f, MAX REWARD &6%.2f&f, AUTHOR WILL WIN &6%.2f&f.
+advanced_info2: FORCED SCORE &e%.2f&f, MAX REWARD &6%.2f&f, AUTHOR WILL WIN &6%.2f&f.
+how_to_score: To give a score, use '/scr <score>'.
+give_score: You have given it a score of &e%.2f&f.
+already_close: This score sign has already been closed. Author has won &6%s&f.
+already_close_and_score: You have given it a score of &e%.2f&f, and won &6%s&f.
+already_open: Already open.
+new_open: "A new score sign opened! Name: &a%s&f, Author: &a%s&f."
+dont_score_self: Sorry, you could not give score to yourself.
+you_give_score: You have given a score of &e%.2f&f, and paid &6%s&f.
+someone_give_score: "&a%s&f has given a score to &a%s&f ( author: &a%s&f )."
+no_money: You do not have enough money to give score.
+change_score: Changed score from &e%.2f&f to &e%.2f&f.
+change_force_score: Change forced score form &e%s&f to &e%s&f.
+clear_score: Cleared all scores from viewers.
+no_score_close: No player has given it score. Can not close it. To make it closable, give it a forced score.
+announce_close: The score of &a%s&f is &e%.2f&f. The author &2%s&f has won &6%s&f.
+reward_viewer: The score of work &a%s&f is &e%.2f&f. You have given a score of &e%.2f&f and won &6%s&f.
+best_viewer: The best viewer is &2%s&f. He / she has given a score of &e%.2f&f and won &6%s&f.
+set_max_reward: Set max reward from &6%s&f to &6%s&f.
+score_range_exception: <score> must be a number in range of 0.0~10.0.
+empty_list: No open score sign found.
+list_item: "%d. &a%s&f author: &2%s"
+tp_num_exception: <tpNum> must be a positive integer.
+no_tp_target: Can not find teleport target.
+tp_start: You have paid &6%s&f for teleporting to &a%s&f.
+tp_no_money: You should have at least &6%s&f to use teleport.
+
+
+

@@ -2,9 +2,9 @@ package me.hwei.bukkit.scoreplugin.listeners;
 
 import me.hwei.bukkit.scoreplugin.ScoreSignHandle;
 import me.hwei.bukkit.scoreplugin.ScoreSignUtil;
-import me.hwei.bukkit.util.IOutput;
-import me.hwei.bukkit.util.OutputManager;
-import me.hwei.bukkit.util.PermissionManager;
+import me.hwei.bukkit.scoreplugin.util.IOutput;
+import me.hwei.bukkit.scoreplugin.util.OutputManager;
+import me.hwei.bukkit.scoreplugin.util.PermissionManager;
 
 import org.bukkit.Material;
 import org.bukkit.block.Block;

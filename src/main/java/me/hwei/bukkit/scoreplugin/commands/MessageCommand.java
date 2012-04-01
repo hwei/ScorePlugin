@@ -2,9 +2,9 @@ package me.hwei.bukkit.scoreplugin.commands;
 
 import org.bukkit.command.CommandSender;
 
-import me.hwei.bukkit.util.AbstractCommand;
-import me.hwei.bukkit.util.OutputManager;
-import me.hwei.bukkit.util.UsageException;
+import me.hwei.bukkit.scoreplugin.util.AbstractCommand;
+import me.hwei.bukkit.scoreplugin.util.OutputManager;
+import me.hwei.bukkit.scoreplugin.util.UsageException;
 
 public class MessageCommand extends AbstractCommand {
 

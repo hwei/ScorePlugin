@@ -1,4 +1,4 @@
-package me.hwei.bukkit.util;
+package me.hwei.bukkit.scoreplugin.util;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;

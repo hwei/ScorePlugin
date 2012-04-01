@@ -1,5 +1,6 @@
 package me.hwei.bukkit.scoreplugin;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -16,13 +17,14 @@ import me.hwei.bukkit.scoreplugin.data.Work;
 import me.hwei.bukkit.scoreplugin.listeners.ScoreBlockListener;
 import me.hwei.bukkit.scoreplugin.listeners.ScoreEntityListener;
 import me.hwei.bukkit.scoreplugin.listeners.ScorePlayerListener;
-import me.hwei.bukkit.util.AbstractCommand;
-import me.hwei.bukkit.util.IOutput;
-import me.hwei.bukkit.util.MoneyManager;
-import me.hwei.bukkit.util.OutputManager;
-import me.hwei.bukkit.util.PermissionManager;
-import me.hwei.bukkit.util.PermissionsException;
-import me.hwei.bukkit.util.UsageException;
+import me.hwei.bukkit.scoreplugin.util.AbstractCommand;
+import me.hwei.bukkit.scoreplugin.util.IOutput;
+import me.hwei.bukkit.scoreplugin.util.LanguageManager;
+import me.hwei.bukkit.scoreplugin.util.MoneyManager;
+import me.hwei.bukkit.scoreplugin.util.OutputManager;
+import me.hwei.bukkit.scoreplugin.util.PermissionManager;
+import me.hwei.bukkit.scoreplugin.util.PermissionsException;
+import me.hwei.bukkit.scoreplugin.util.UsageException;
 
 import org.bukkit.ChatColor;
 import org.bukkit.World;
@@ -75,6 +77,8 @@ public class ScorePlugin extends JavaPlugin
 				"[" + ChatColor.YELLOW + this.getDescription().getName() + ChatColor.WHITE + "] ",
 				toConsole, toAll, playerGetter);
 		this.toConsole = OutputManager.GetInstance().prefix(toConsole);
+		
+		LanguageManager.Setup(new File( this.getDataFolder(), "language" + this.getDescription().getVersion() + ".yml"));
 		
 		ScoreSignUtil.Setup("[" + this.getDescription().getName() + "]");
 		

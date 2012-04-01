@@ -1,7 +1,7 @@
 package me.hwei.bukkit.scoreplugin.listeners;
 
 import me.hwei.bukkit.scoreplugin.ScoreSignHandle;
-import me.hwei.bukkit.util.PermissionManager;
+import me.hwei.bukkit.scoreplugin.util.PermissionManager;
 
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.EventHandler;

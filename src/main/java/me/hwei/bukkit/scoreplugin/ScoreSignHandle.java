@@ -6,11 +6,11 @@ import me.hwei.bukkit.scoreplugin.data.Score;
 import me.hwei.bukkit.scoreplugin.data.ScoreAggregate;
 import me.hwei.bukkit.scoreplugin.data.Storage;
 import me.hwei.bukkit.scoreplugin.data.Work;
-import me.hwei.bukkit.util.IOutput;
-import me.hwei.bukkit.util.MoneyManager;
-import me.hwei.bukkit.util.OutputManager;
+import me.hwei.bukkit.scoreplugin.util.IOutput;
+import me.hwei.bukkit.scoreplugin.util.LanguageManager;
+import me.hwei.bukkit.scoreplugin.util.MoneyManager;
+import me.hwei.bukkit.scoreplugin.util.OutputManager;
 
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
@@ -21,14 +21,15 @@ public class ScoreSignHandle {
 	public static ScoreSignHandle GetFromSight(Player player) {
 		Block block = player.getTargetBlock(null, 3);
 		IOutput toPlayer = OutputManager.GetInstance().toSender(player);
+		String s_no_sign = LanguageManager.GetInstance().getPhrase("no_sign");
 		if(block == null || (block.getType() != Material.SIGN_POST && block.getType() != Material.WALL_SIGN)) {
-			toPlayer.output("No score sign in sight.");
+			toPlayer.output(s_no_sign);
 			return null;
 		}
 		Sign sign = (Sign)block.getState();
 		Work infoFromSign = ScoreSignUtil.GetInstance().read(sign);
 		if(infoFromSign == null) {
-			toPlayer.output("No score sign in sight.");
+			toPlayer.output(s_no_sign);
 			return null;
 		}
 		Work work = Storage.GetInstance().load(infoFromSign);
@@ -84,7 +85,7 @@ public class ScoreSignHandle {
 			return false;
 		}
 		Storage.GetInstance().delete(work);
-		toSender.output("Removed score sign.");
+		toSender.output(LanguageManager.GetInstance().getPhrase("removed"));
 		return true;
 	}
 	
@@ -99,8 +100,9 @@ public class ScoreSignHandle {
 	
 	public void showInfo(boolean advanced) {
 		IOutput toPlayer = OutputManager.GetInstance().toSender(player);
+		LanguageManager lm = LanguageManager.GetInstance();
 		if(this.work.getWork_id() == null) {
-			toPlayer.output("This score sign has not been opened yet.");
+			toPlayer.output(lm.getPhrase("not_open"));
 			return;
 		}
 		ScoreSignUtil signUtil = ScoreSignUtil.GetInstance();
@@ -109,8 +111,7 @@ public class ScoreSignHandle {
 		Score score = storage.load(work.getWork_id(), player.getName());
 		if(this.work.getReward() == null) {
 			int viewerNumber = storage.scoreCount(work.getWork_id());
-			toPlayer.output(String.format("This score sign is open. "
-					+ ChatColor.YELLOW + "%d" + ChatColor.WHITE + " players have given it a score.", viewerNumber));
+			toPlayer.output(String.format(lm.getPhrase("is_open"), viewerNumber));
 			
 			if(advanced) {
 				ScoreAggregate scoreAgg = storage.scoreAggregate(this.work.getWork_id());
@@ -120,16 +121,7 @@ public class ScoreSignHandle {
 								signUtil.calcAuthorReward(this.work.getScore(), this.work.getMax_reward());
 					
 					toPlayer.output(
-							String.format(
-									"AVG: " + ChatColor.YELLOW + "%.2f" + ChatColor.WHITE
-								+ ", MIN " + ChatColor.YELLOW + "%.2f" + ChatColor.WHITE
-								+ ", MAX " + ChatColor.YELLOW + "%.2f" + ChatColor.WHITE
-								+ ", SUM " + ChatColor.YELLOW + "%.2f" + ChatColor.WHITE
-								+ ", FORCED SCORE: "
-								+ ChatColor.YELLOW + "%s" + ChatColor.WHITE
-								+ ", MAX REWARD: " + ChatColor.GOLD + "%.2f" + ChatColor.WHITE
-								+ ", AUTHOR WILL WIN: " + ChatColor.GOLD + "%.2f" + ChatColor.WHITE
-								+ ".",
+							String.format(lm.getPhrase("advanced_info"),
 								scoreAgg.getAverage(),
 								scoreAgg.getMin(),
 								scoreAgg.getMax(),
@@ -140,12 +132,7 @@ public class ScoreSignHandle {
 				} else if(this.work.getScore() != null) {
 					double authorWillWin = signUtil.calcAuthorReward(this.work.getScore(), this.work.getMax_reward());
 					toPlayer.output(
-							String.format(
-								"FORCED SCORE: "
-								+ ChatColor.YELLOW + "%.2f" + ChatColor.WHITE
-								+ ", MAX REWARD: " + ChatColor.GOLD + "%.2f" + ChatColor.WHITE
-								+ ", AUTHOR WILL WIN: " + ChatColor.GOLD + "%.2f" + ChatColor.WHITE
-								+ ".",
+							String.format(lm.getPhrase("advanced_info2"),
 								this.work.getScore(),
 								this.work.getMax_reward(),
 								authorWillWin));
@@ -153,30 +140,18 @@ public class ScoreSignHandle {
 			}
 			
 			if(score == null) {
-				toPlayer.output("To give a score, use '/scr <score>'.");
+				toPlayer.output(lm.getPhrase("how_to_score"));
 				return;
 			} else {
-				toPlayer.output(String.format(
-						"You have given it a score of " + ChatColor.YELLOW + "%.2f" + ChatColor.WHITE + ".", score.getScore()));
+				toPlayer.output(String.format(lm.getPhrase("give_score"), score.getScore()));
 				return;
 			}
 		} else {
 			MoneyManager moneyManager = MoneyManager.GetInstance();
-			toPlayer.output(
-					"This score sign has already been closed. Author has won "
-					+ ChatColor.GOLD
-					+ moneyManager.format(work.getReward())
-					+ ChatColor.WHITE + ".");
+			toPlayer.output(String.format(lm.getPhrase("already_close"), moneyManager.format(work.getReward())));
 			if(score != null) {
-				toPlayer.output(
-						"You have given it a score of "
-						+ ChatColor.YELLOW
-						+ String.format("%.2f", score.getScore())
-						+ ChatColor.WHITE
-						+ ", and won "+ ChatColor.GOLD
-						+ moneyManager.format(score.getReward())
-						+ ChatColor.WHITE + "."
-						);
+				toPlayer.output(String.format(lm.getPhrase("already_close_and_score"),
+						score.getScore(), moneyManager.format(score.getReward())));
 				return;
 			}
 			return;
@@ -185,27 +160,27 @@ public class ScoreSignHandle {
 
 	public void open() {
 		IOutput toPlayer = OutputManager.GetInstance().toSender(player);
+		LanguageManager lm = LanguageManager.GetInstance();
 		if(this.work.getWork_id() != null) {
-			toPlayer.output("Already open.");
+			toPlayer.output(lm.getPhrase("already_open"));
 			return;
 		}
 		this.work.setMax_reward(ScoreConfig.getAutherMaxReward());
 		Storage.GetInstance().save(this.work);
 		ScoreSignUtil.GetInstance().write(this.sign, this.work);
 		IOutput toAll = OutputManager.GetInstance().prefix(OutputManager.GetInstance().toAll());
-		toAll.output(String.format( "A new score sign opened! Name: "
-				+ ChatColor.GREEN + "%s" + ChatColor.WHITE
-				+ ", Author: " + ChatColor.DARK_GREEN + "%s" + ChatColor.WHITE + ".",
+		toAll.output(String.format(lm.getPhrase("new_open"),
 				work.getName(), work.getAuthor()));
 	}
 
 	public void giveScore(double score) {
 		IOutput toPlayer = OutputManager.GetInstance().toSender(player);
+		LanguageManager lm = LanguageManager.GetInstance();
 		if(!this.requireOpenScore(toPlayer)) {
 			return;
 		}
 		if(this.work.getAuthor() == player.getName()) {
-			toPlayer.output("Sorry, you could not give score to yourself.");
+			toPlayer.output(lm.getPhrase("dont_score_self"));
 			return;
 		}
 		Storage storage = Storage.GetInstance();
@@ -219,38 +194,25 @@ public class ScoreSignHandle {
 				scoreItem.setWork_id(this.work.getWork_id());
 				scoreItem.setViewer(this.player.getName());
 				storage.save(scoreItem);
-				toPlayer.output(String.format(
-						"You have given a score of "
-						+ ChatColor.YELLOW + "%.2f" + ChatColor.WHITE
-						+ " , and paid "
-						+ ChatColor.GOLD + "%s" + ChatColor.WHITE
-						+ ".",
+				toPlayer.output(String.format(lm.getPhrase("you_give_score"),
 						score,
 						moneyManager.format(price)
 						));
 				IOutput toAll = OutputManager.GetInstance().prefix(OutputManager.GetInstance().toAll());
-				toAll.output(String.format(
-						"" + ChatColor.DARK_GREEN + "%s" + ChatColor.WHITE
-						+ " has given a score to "
-						+ ChatColor.GREEN + "%s" + ChatColor.WHITE
-						+ " ( author: " + ChatColor.DARK_GREEN + "%s" + ChatColor.WHITE
-						+ " ).",
+				toAll.output(String.format(lm.getPhrase("someone_give_score"),
 						this.player.getName(),
 						work.getName(),
-						 work.getAuthor()
+						work.getAuthor()
 						));
 			} else {
-				toPlayer.output("You do not have enough money to give score.");
+				toPlayer.output(lm.getPhrase("no_money"));
 			}
 			return;
 		} else {
 			double oldScoreNumber = scoreItem.getScore();
 			scoreItem.setScore(score);
 			storage.save(scoreItem);
-			toPlayer.output(String.format(
-					"Changed score from "
-					+ ChatColor.YELLOW + "%.2f" + ChatColor.WHITE
-					+ " to " + ChatColor.YELLOW + "%.2f" + ChatColor.WHITE + ".",
+			toPlayer.output(String.format(lm.getPhrase("change_score"),
 					oldScoreNumber, score));
 			return;
 		}
@@ -258,6 +220,7 @@ public class ScoreSignHandle {
 
 	public void setForcedScore(Double forcedScore) {
 		IOutput toPlayer = OutputManager.GetInstance().toSender(player);
+		LanguageManager lm = LanguageManager.GetInstance();
 		if(!this.requireOpenScore(toPlayer)) {
 			return;
 		}
@@ -265,12 +228,7 @@ public class ScoreSignHandle {
 		work.setScore(forcedScore);
 		Storage storage = Storage.GetInstance();
 		storage.save(work);
-		toPlayer.output(String.format(
-				"Change forced score form " +
-				ChatColor.YELLOW + "%s" + ChatColor.WHITE +
-				" to " +
-				ChatColor.YELLOW + "%s" + ChatColor.WHITE +
-				" .",
+		toPlayer.output(String.format(lm.getPhrase("change_force_score"),
 				oldForcedScore == null ? "null" : String.format("%.2f", oldForcedScore),
 				forcedScore == null ? "null" : String.format("%.2f", forcedScore)
 				));
@@ -278,16 +236,18 @@ public class ScoreSignHandle {
 	
 	public void clearScore() {
 		IOutput toPlayer = OutputManager.GetInstance().toSender(player);
+		LanguageManager lm = LanguageManager.GetInstance();
 		if(!this.requireOpenScore(toPlayer)) {
 			return;
 		}
 		Storage storage = Storage.GetInstance();
 		storage.clearScore(this.work.getWork_id());
-		toPlayer.output("Cleared all scores from viewers.");
+		toPlayer.output(lm.getPhrase("clear_score"));
 	}
 
 	public void close() {
 		IOutput toPlayer = OutputManager.GetInstance().toSender(player);
+		LanguageManager lm = LanguageManager.GetInstance();
 		if(!this.requireOpenScore(toPlayer)) {
 			return;
 		}
@@ -296,7 +256,7 @@ public class ScoreSignHandle {
 		if(score == null) {
 			ScoreAggregate scoreAgg = storage.scoreAggregate(this.work.getWork_id());
 			if(scoreAgg == null) {
-				toPlayer.output("No player has given it score. Can not close it. To make it closable, give it a forced score.");
+				toPlayer.output(lm.getPhrase("no_score_close"));
 				return;
 			}
 			score = scoreAgg.getAverage();
@@ -310,14 +270,7 @@ public class ScoreSignHandle {
 		signutil.write(this.sign, this.work);
 		IOutput toAll = OutputManager.GetInstance().prefix(OutputManager.GetInstance().toAll());
 		if(moneyManager.giveMoney(this.work.getAuthor(), autherReward)) {
-			toAll.output(String.format(
-					"The score of "
-					+ ChatColor.GREEN + "%s" + ChatColor.WHITE
-					+ " is "
-					+ ChatColor.YELLOW + "%.2f" + ChatColor.WHITE
-					+ ". The author " + ChatColor.DARK_GREEN + "%s" + ChatColor.WHITE + " has won "
-					+ ChatColor.GOLD + "%s" + ChatColor.WHITE
-					+ ".",
+			toAll.output(String.format(lm.getPhrase("announce_close"),
 					this.work.getName(),
 					score,
 					this.work.getAuthor(),
@@ -331,16 +284,7 @@ public class ScoreSignHandle {
 			viewerScore.setReward(viewerReward);
 			if(moneyManager.giveMoney(viewerScore.getViewer(), viewerReward)) {
 				IOutput toThePlayer = OutputManager.GetInstance().prefix(OutputManager.GetInstance().toSender((viewerScore.getViewer())));
-				toThePlayer.output(String.format("The score of work "
-						+ ChatColor.GREEN + "%s" + ChatColor.WHITE
-						+ " is "
-						+ ChatColor.YELLOW + "%.2f" + ChatColor.WHITE
-						+ ". "
-						+ "You have given a score of "
-						+ ChatColor.YELLOW + "%.2f" + ChatColor.WHITE
-						+ " and won "
-						+ ChatColor.GOLD + "%s" + ChatColor.WHITE
-						+ ".",
+				toThePlayer.output(String.format(lm.getPhrase("reward_viewer"),
 						work.getName(),
 						score,
 						viewerScore.getScore(),
@@ -352,10 +296,7 @@ public class ScoreSignHandle {
 			}
 		}
 		if(bestViewerScore != null) {
-			toAll.output(String.format(
-					"The best viewer is " + ChatColor.DARK_GREEN + "%s" + ChatColor.WHITE
-					+ ". He / she has given a score of " + ChatColor.YELLOW + "%.2f" + ChatColor.WHITE
-					+ " and won " + ChatColor.GOLD + "%s" + ChatColor.WHITE + ".",
+			toAll.output(String.format(lm.getPhrase("best_viewer"),
 					bestViewerScore.getViewer(),
 					bestViewerScore.getScore(),
 					moneyManager.format(bestViewerScore.getReward())
@@ -367,6 +308,7 @@ public class ScoreSignHandle {
 	
 	public void setMaxReward(double maxReward) {
 		IOutput toPlayer = OutputManager.GetInstance().toSender(player);
+		LanguageManager lm = LanguageManager.GetInstance();
 		if(!this.requireOpenScore(toPlayer)) {
 			return;
 		}
@@ -375,28 +317,20 @@ public class ScoreSignHandle {
 		this.work.setMax_reward(maxReward);
 		storage.save(work);
 		MoneyManager moneyManager = MoneyManager.GetInstance();
-		toPlayer.output(String.format(
-				"Set max reward from " +
-				ChatColor.GOLD + "%s" + ChatColor.WHITE +
-				" to " +
-				ChatColor.GOLD + "%s" + ChatColor.WHITE +
-				" .",
+		toPlayer.output(String.format(lm.getPhrase("set_max_reward"),
 				moneyManager.format(oldMaxReward),
 				moneyManager.format(maxReward)
 				));
 	}
 	
 	protected boolean requireOpenScore(IOutput toPlayer) {
+		LanguageManager lm = LanguageManager.GetInstance();
 		if(this.work.getWork_id() == null) {
-			toPlayer.output("This score sign has not been opened yet.");
+			toPlayer.output(lm.getPhrase("not_open"));
 			return false;
 		}
 		if(this.work.getReward() != null) {
-			toPlayer.output(String.format(
-					"This score sign has already been closed. Author has won "
-					+ ChatColor.GOLD
-					+ "%s"
-					+ ChatColor.WHITE + ".",
+			toPlayer.output(String.format(lm.getPhrase("already_close"),
 					MoneyManager.GetInstance().format(this.work.getReward())));
 			return false;
 		}

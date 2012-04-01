@@ -3,14 +3,14 @@ package me.hwei.bukkit.scoreplugin.commands;
 import me.hwei.bukkit.scoreplugin.ScoreConfig;
 import me.hwei.bukkit.scoreplugin.data.Storage;
 import me.hwei.bukkit.scoreplugin.data.Work;
-import me.hwei.bukkit.util.AbstractCommand;
-import me.hwei.bukkit.util.CommandOnlyForPlayerException;
-import me.hwei.bukkit.util.IOutput;
-import me.hwei.bukkit.util.MoneyManager;
-import me.hwei.bukkit.util.OutputManager;
-import me.hwei.bukkit.util.UsageException;
+import me.hwei.bukkit.scoreplugin.util.AbstractCommand;
+import me.hwei.bukkit.scoreplugin.util.CommandOnlyForPlayerException;
+import me.hwei.bukkit.scoreplugin.util.IOutput;
+import me.hwei.bukkit.scoreplugin.util.LanguageManager;
+import me.hwei.bukkit.scoreplugin.util.MoneyManager;
+import me.hwei.bukkit.scoreplugin.util.OutputManager;
+import me.hwei.bukkit.scoreplugin.util.UsageException;
 
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
@@ -37,8 +37,9 @@ public class TeleportCommand extends AbstractCommand {
 		if(tpNum == null)
 			return false;
 		
+		LanguageManager lm = LanguageManager.GetInstance();
 		if(tpNum <=0 ) {
-			throw new UsageException(this.coloredUsage, "<tpNum> must be a positive integer.");
+			throw new UsageException(this.coloredUsage, lm.getPhrase("tp_num_exception"));
 		}
 		
 		if(!(sender instanceof Player)) {
@@ -50,17 +51,13 @@ public class TeleportCommand extends AbstractCommand {
 		Work work = storage.loadOpenWorkAt(tpNum - 1);
 		IOutput toPlayer = OutputManager.GetInstance().toSender(player);
 		if(work == null) {
-			toPlayer.output("Can not find teleport target.");
+			toPlayer.output(lm.getPhrase("no_tp_target"));
 			return true;
 		}
 		double tp_price = ScoreConfig.getTpPrice();
 		MoneyManager moneyManager = MoneyManager.GetInstance();
 		if(tp_price == 0D || moneyManager.takeMoney(player.getName(), tp_price)) {
-			toPlayer.output(String.format(
-					"You have paid " +
-					ChatColor.GOLD + "%s" + ChatColor.WHITE +
-					" for teleporting to " +
-					ChatColor.GREEN + "%s" + ChatColor.WHITE + " .",
+			toPlayer.output(String.format(lm.getPhrase("tp_start"),
 					moneyManager.format(tp_price),
 					work.getName()
 			));
@@ -71,10 +68,7 @@ public class TeleportCommand extends AbstractCommand {
 					work.getPos_z() + 0.5D);
 			player.teleport(l);
 		} else {
-			toPlayer.output(String.format(
-					"You should have at least " +
-					ChatColor.GOLD + "%s" + ChatColor.WHITE +
-					" to use teleport.",
+			toPlayer.output(String.format(lm.getPhrase("tp_no_money"),
 					moneyManager.format(tp_price)
 					));
 		}

@@ -1,4 +1,4 @@
-package me.hwei.bukkit.util;
+package me.hwei.bukkit.scoreplugin.util;
 
 import java.util.ArrayList;
 import java.util.Arrays;

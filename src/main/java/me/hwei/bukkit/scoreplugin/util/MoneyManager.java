@@ -1,4 +1,4 @@
-package me.hwei.bukkit.util;
+package me.hwei.bukkit.scoreplugin.util;
 
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.ServicesManager;
