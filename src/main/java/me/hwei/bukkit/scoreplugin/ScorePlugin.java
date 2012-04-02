@@ -86,7 +86,9 @@ public class ScorePlugin extends JavaPlugin
 		ScoreConfig.Setup(new IConfigDataSource(){
 			@Override
 			public Configuration getConfig() {
-				return ScorePlugin.this.getConfig();
+				Configuration config = ScorePlugin.this.getConfig();
+				config.options().copyDefaults(true);
+				return config;
 			}
 			@Override
 			public void saveConfig() {

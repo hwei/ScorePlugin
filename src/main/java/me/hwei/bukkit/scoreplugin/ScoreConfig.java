@@ -1,7 +1,6 @@
 package me.hwei.bukkit.scoreplugin;
 
 import org.bukkit.configuration.Configuration;
-import org.bukkit.configuration.MemoryConfiguration;
 
 public class ScoreConfig {
 	
@@ -15,26 +14,15 @@ public class ScoreConfig {
 	}
 	
 	public static void Reload() {
-		MemoryConfiguration memConfig = new MemoryConfiguration();
-		memConfig.set("price", 25D);
-		memConfig.set("tp_price", 25D);
-		memConfig.set("viewer_max_reward", 500D);
-		memConfig.set("auther_max_reward", 5000D);
-		memConfig.set("viewer_score_threshold", 1D);
-		memConfig.set("auther_score_threshold", 6D);
-		memConfig.set("dynmap_display_open", true);
-		memConfig.set("dynmap_display_closed", true);
 		Configuration config = configDataSource.getConfig();
-		config.setDefaults(memConfig);
-		price = getDouble(config, "price", 25D);
-		tpPrice = getDouble(config, "tp_price", 25D);
-		viewerMaxReward = getDouble(config, "viewer_max_reward", 500D);
-		autherMaxReward = getDouble(config, "auther_max_reward", 5000D);
-		viewerScoreThreshold = getDouble(config, "viewer_score_threshold", 1D);
-		autherScoreThreshold =getDouble(config, "auther_score_threshold", 6D);
-		dynmapDisplayOpen = getBoolean(config, "dynmap_display_open", true);
-		dynmapDisplayClosed = getBoolean(config, "dynmap_display_close", true);
-		
+		price = config.getDouble("price");
+		tpPrice = config.getDouble("tp_price");
+		viewerMaxReward = config.getDouble("viewer_max_reward");
+		autherMaxReward = config.getDouble("auther_max_reward");
+		viewerScoreThreshold = config.getDouble("viewer_score_threshold");
+		autherScoreThreshold = config.getDouble("auther_score_threshold");
+		dynmapDisplayOpen = config.getBoolean("dynmap_display_open");
+		dynmapDisplayClosed = config.getBoolean("dynmap_display_close");
 		configDataSource.saveConfig();
 	}
 	
@@ -71,15 +59,5 @@ public class ScoreConfig {
 	}
 	public static boolean getDynmapDisplayClosed() {
 		return dynmapDisplayClosed;
-	}
-	private static double getDouble(Configuration config, String path , double def) {
-		double value = config.getDouble(path, def);
-		config.set(path, value);
-		return value;
-	}
-	private static boolean getBoolean(Configuration config, String path , boolean def) {
-		boolean value = config.getBoolean(path, def);
-		config.set(path, value);
-		return value;
 	}
 }

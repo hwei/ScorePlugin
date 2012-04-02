@@ -1,0 +1,8 @@
+price: 25.0
+tp_price: 25.0
+viewer_max_reward: 500.0
+auther_max_reward: 5000.0
+viewer_score_threshold: 1.0
+auther_score_threshold: 6.0
+dynmap_display_open: true
+dynmap_display_close: true
