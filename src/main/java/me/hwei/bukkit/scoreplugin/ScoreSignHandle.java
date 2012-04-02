@@ -86,6 +86,7 @@ public class ScoreSignHandle {
 		}
 		Storage.GetInstance().delete(work);
 		toSender.output(LanguageManager.GetInstance().getPhrase("removed"));
+		ScoreDynmap.Update();
 		return true;
 	}
 	
@@ -171,6 +172,7 @@ public class ScoreSignHandle {
 		IOutput toAll = OutputManager.GetInstance().prefix(OutputManager.GetInstance().toAll());
 		toAll.output(String.format(lm.getPhrase("new_open"),
 				work.getName(), work.getAuthor()));
+		ScoreDynmap.Update();
 	}
 
 	public void giveScore(double score) {
@@ -304,6 +306,7 @@ public class ScoreSignHandle {
 		}
 		
 		storage.saveScoreList(scoreList);
+		ScoreDynmap.Update();
 	}
 	
 	public void setMaxReward(double maxReward) {

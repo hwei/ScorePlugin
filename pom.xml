@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>me.hwei</groupId>
 	<version>0.7.1</version>
-	<artifactId>score</artifactId>
+	<artifactId>score-plugin</artifactId>
 	<name>Score</name>
 	<properties>
 	   <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -44,6 +44,7 @@
 					<excludePackageNames>me.desht.scrollingmenusign.commands:me.desht.scrollingmenusign.util:me.desht.scrollingmenusign.expector:me.desht.scrollingmenusign.spout:me.desht.scrollingmenusign.listeners</excludePackageNames>
 				</configuration>
 			</plugin>
+
 		</plugins>
 		<resources>
 			<resource>
@@ -64,6 +65,11 @@
 			<groupId>net.milkbowl</groupId>
 			<artifactId>vault</artifactId>
 			<version>1.2.13</version>
+		</dependency>
+		<dependency>
+			<groupId>org.dynmap</groupId>
+			<artifactId>DynmapCoreAPI</artifactId>
+			<version>0.36.2</version>
 		</dependency>
 	</dependencies>
 	<dependencyManagement>

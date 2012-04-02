@@ -53,6 +53,16 @@ public class Storage {
 				.findList();
 	}
 	
+	public List<Work> loadClosedWorkList(int pageSize) {
+		return this.database
+				.find(Work.class)
+				.where()
+				.ne("reward", null)
+				.orderBy("work_id desc")
+				.setMaxRows(pageSize)
+				.findList();
+	}
+	
 	public Work loadOpenWorkAt(int index) {
 		return this.database
 				.find(Work.class)

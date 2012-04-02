@@ -28,6 +28,7 @@ import me.hwei.bukkit.scoreplugin.util.UsageException;
 
 import org.bukkit.ChatColor;
 import org.bukkit.World;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.command.Command;
@@ -110,6 +111,13 @@ public class ScorePlugin extends JavaPlugin
 		
 		MoneyManager.Setup(getServer().getServicesManager());
 		PermissionManager.Setup(getServer().getServicesManager());
+		
+		Plugin dynmap = pluginManager.getPlugin("dynmap");
+		if(dynmap != null && dynmap.isEnabled()) {
+			ScoreDynmap.Setup(dynmap);
+		} else {
+			pluginManager.registerEvents(ScoreDynmap.getSetupListerner(), this);
+		}
 		
 		this.enable = true;
 		this.toConsole.output(this.getDescription().getVersion() + " Enabled. Developed by " + this.getDescription().getAuthors().get(0) + ".");
