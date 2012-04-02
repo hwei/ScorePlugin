@@ -11,6 +11,7 @@ Features
 * Author will receive reward according to the final score.
 * Give score will cost viewer money but he will win reward if the score is near to the final score.
 * Final score is average score of viewers generally. But admin can also set it to a forced score.
+* Display score sign position on dynmap.
 
 
 Requirements
@@ -93,3 +94,7 @@ config.yml example
     auther_score_threshold: 6.0
     # The price of teleporting to score sign.
     tp_price: 100.0
+    # Whether display open score signs on dynmap
+    dynmap_display_open: true
+    # Whether display closed score sings on dynmap
+    dynmap_display_close: true 
